@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Catalogue - XML Lab</title>
+    <style>
+        .book-item { border:1px solid #aaa; padding:12px; margin:8px 0; border-radius:6px; }
+    </style>
+</head>
+<body>
+    <h1>Book Catalogue from XML</h1>
+    <div id="bookContainer"></div>
+
+    <script>
+        const container = document.getElementById("bookContainer");
+
+        fetch("book.xml")
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP error code " + res.status);
+                return res.text();
+            })
+            .then(xmlText => {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                const bookNodes = xmlDoc.querySelectorAll("book");
+
+                bookNodes.forEach(book => {
+                    const id = book.getAttribute("id");
+                    const title = book.querySelector("title").textContent;
+                    const author = book.querySelector("author").textContent;
+                    const price = book.querySelector("price").textContent;
+
+                    const div = document.createElement("div");
+                    div.className = "book-item";
+                    div.innerHTML = `
+                        <p><strong>Book ID:</strong> ${id}</p>
+                        <p><strong>Title:</strong> ${title}</p>
+                        <p><strong>Author:</strong> ${author}</p>
+                        <p><strong>Price:</strong> $${price}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            })
+            .catch(err => {
+                container.innerText = "Failed to load XML: " + err.message;
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
